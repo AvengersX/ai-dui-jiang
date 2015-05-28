@@ -4,6 +4,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.sogou.aiduijiang.im.IMClient;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -12,8 +15,23 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        IMClient.getsInstance().joinChatRoom();
+
+
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IMClient.getsInstance().sendMessage();
+            }
+        });
     }
 
+    @Override
+    protected void onDestroy() {
+        IMClient.getsInstance().quitChatRoom();
+        super.onDestroy();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
