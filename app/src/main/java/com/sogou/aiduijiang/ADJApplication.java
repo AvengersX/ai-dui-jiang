@@ -25,15 +25,27 @@ public class ADJApplication extends Application {
 
     private static final String TOKEN_5 = "6ZrI3PRcu5d69RANtQH8rbdcZzg7k0226AkqN9VvhS6OPh7oEsnljALPrzwZhhgznUEXmmAizfTFdLrsaI8mXQ=="; // user5 caohe1
 
+    private static Application sInstance;
+
+    public static Application getInstance() {
+        return sInstance;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
-
+        sInstance = this;
         if (getCurProcessName(this).equals("com.sogou.aiduijiang")) {
             IMClient.init(this);
             IMClient.getsInstance().connect(getToken());
         }
 
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        sInstance = null;
     }
 
     public static String getCurProcessName(Context context) {
