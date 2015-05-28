@@ -5,8 +5,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.MapView;
+
+import com.sogou.aiduijiang.im.IMClient;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -18,6 +22,35 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        IMClient.getsInstance().joinChatRoom();
+
+        findViewById(R.id.btn).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        IMClient.getsInstance().startTalk();
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_OUTSIDE:
+                    case MotionEvent.ACTION_UP:
+                        IMClient.getsInstance().endTalk();
+                        break;
+                }
+
+
+                return false;
+            }
+        });
+
+        findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                IMClient.getsInstance().sendMessage();
+            }
+        });
 
         mMapView = (MapView)findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
@@ -76,6 +109,7 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
+        IMClient.getsInstance().quitChatRoom();
         super.onDestroy();
         mMapView.onDestroy();
     }

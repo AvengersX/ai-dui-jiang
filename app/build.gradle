@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+    }
+}
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -17,6 +26,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
@@ -27,4 +42,5 @@ dependencies {
     compile files('E:/gitRoot/ai-dui-jiang/libs/Android_Location_V1.3.2.jar')
     compile files('E:/gitRoot/ai-dui-jiang/libs/Android_Navi_V1.1.2.jar')
     compile files('E:/gitRoot/ai-dui-jiang/libs/Msc.jar')
+    compile files('libs/Rong_IMLib_v1_4_8.jar')
 }
