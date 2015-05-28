@@ -17,4 +17,10 @@ public interface IMInterface {
 
     public void sendMessage();
 
+    public boolean canTalk();
+
+    public void startTalk();
+
+    public void endTalk();
+
 }

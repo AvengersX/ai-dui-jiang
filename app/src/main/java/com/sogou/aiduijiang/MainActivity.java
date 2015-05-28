@@ -4,6 +4,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.sogou.aiduijiang.im.IMClient;
@@ -18,11 +19,30 @@ public class MainActivity extends ActionBarActivity {
 
         IMClient.getsInstance().joinChatRoom();
 
+        findViewById(R.id.btn).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        IMClient.getsInstance().startTalk();
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_OUTSIDE:
+                    case MotionEvent.ACTION_UP:
+                        IMClient.getsInstance().endTalk();
+                        break;
+                }
+
+
+                return false;
+            }
+        });
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IMClient.getsInstance().sendMessage();
+//                IMClient.getsInstance().sendMessage();
             }
         });
     }

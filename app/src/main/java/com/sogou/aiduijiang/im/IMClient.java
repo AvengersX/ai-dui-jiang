@@ -43,4 +43,16 @@ public class IMClient {
         sInstance.mIMImpl.quitChatRoom();
     }
 
+    public boolean canTalk() {
+        return sInstance.mIMImpl.canTalk();
+    }
+
+    public void startTalk() {
+        sInstance.mIMImpl.startTalk();
+    }
+
+    public void endTalk() {
+        sInstance.mIMImpl.endTalk();
+    }
+
 }

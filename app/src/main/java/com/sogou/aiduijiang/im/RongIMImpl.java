@@ -51,7 +51,6 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 //        Log.v("hccc", "=====message received==" + message + message.getClass() + message.getContent());
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
-
             Log.d("hccc", "TextMessage---收收收收--接收到一条【文字消息】-----" + textMessage.getContent() + ",getExtra:" + textMessage.getExtra());
             Log.d("hccc", "TextMessage---收收收收--接收到一条【文字消息】getPushContent-----" + textMessage.getPushContent());
 
@@ -112,5 +111,21 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
             }
         });
+    }
+
+    @Override
+    public boolean canTalk() {
+        return true;
+    }
+
+    @Override
+    public void startTalk() {
+        Log.v("hccc", "====start talk===");
+        sendMessage();
+    }
+
+    @Override
+    public void endTalk() {
+        Log.v("hccc", "====end talk===");
     }
 }
