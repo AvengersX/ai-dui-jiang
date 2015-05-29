@@ -55,4 +55,30 @@ public class IMClient {
         sInstance.mIMImpl.endTalk();
     }
 
+    /**
+     * 更新用户经纬度
+     * @param lat
+     * @param lon
+     */
+    public void updateLocation(String lat, String lon) {
+
+    }
+
+    /**
+     * 设置目的地：目的地位置
+     * @param lat
+     * @param lon
+     */
+    public void setDestination(String lat, String lon) {
+
+    }
+
+    /**
+     * 设置CallBack
+     * @param callBack
+     */
+    public void setIMCallBack(IMCallBack callBack) {
+
+    }
+
 }
