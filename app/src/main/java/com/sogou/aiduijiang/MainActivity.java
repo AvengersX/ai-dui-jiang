@@ -9,13 +9,44 @@ import android.view.View;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.MapView;
 
+import com.sogou.aiduijiang.im.IMCallBack;
 import com.sogou.aiduijiang.im.IMClient;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements IMCallBack {
     private MapView mMapView;
     private AMap mAMap;
 
+
+    @Override
+    public void onUserJoin(String userId, String avatar, String lat, String lon) {
+
+    }
+
+    @Override
+    public void onUserLocationUpdate(String userId, String lat, String lon) {
+
+    }
+
+    @Override
+    public void onUserQuit(String userId) {
+
+    }
+
+    @Override
+    public void onUserStartTalk(String userId) {
+
+    }
+
+    @Override
+    public void onUserEndTalk(String userId) {
+
+    }
+
+    @Override
+    public void onSetDestination(String userId, String lat, String lon) {
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +54,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         IMClient.getsInstance().joinChatRoom();
+        IMClient.getsInstance().setIMCallBack(this);
 
         findViewById(R.id.btn).setOnTouchListener(new View.OnTouchListener() {
             @Override
