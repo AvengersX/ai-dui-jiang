@@ -1,5 +1,7 @@
 package com.sogou.aiduijiang;
 
+import android.graphics.Color;
+import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,16 +9,44 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.LocationManagerProxy;
+import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.MapView;
 
 import com.sogou.aiduijiang.im.IMCallBack;
+import com.amap.api.maps.model.BitmapDescriptorFactory;
+import com.amap.api.maps.model.LatLng;
+import com.amap.api.maps.model.Marker;
+import com.amap.api.maps.model.MarkerOptions;
+import com.amap.api.maps.model.MyLocationStyle;
 import com.sogou.aiduijiang.im.IMClient;
+import com.amap.api.maps.LocationSource;
+import com.amap.api.location.AMapLocationListener;
+import com.sogou.aiduijiang.model.AppData;
+import com.sogou.aiduijiang.model.User;
+
+import java.util.Hashtable;
 
 
-public class MainActivity extends ActionBarActivity implements IMCallBack {
+public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClickListener,
+        AMap.OnInfoWindowClickListener,
+        AMap.OnMarkerDragListener,
+        AMap.OnMapLoadedListener,
+        View.OnClickListener,
+        AMap.InfoWindowAdapter,
+        LocationSource,
+        AMapLocationListener,
+        IMCallBack {
     private MapView mMapView;
     private AMap mAMap;
+    private OnLocationChangedListener mListener;
+    private LocationManagerProxy mAMapLocationManager;
+    private Marker mMyMarker;
+    private Marker mDestinationMarker;
+    private Hashtable<String, Marker> mFriendMarkers = new Hashtable<>();
 
 
     @Override
@@ -94,7 +124,40 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
     private void init() {
         if (mAMap == null) {
             mAMap = mMapView.getMap();
+            setupMap();
         }
+    }
+
+    private void setupMap() {
+        User curr = AppData.getInstance().getCurrentUser();
+        mMyMarker = mAMap.addMarker(
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .icon(BitmapDescriptorFactory.fromBitmap(curr.mPhoto))
+                        .position(new LatLng(curr.mLatitude, curr.mLongitude)));
+
+        MyLocationStyle myLocationStyle = new MyLocationStyle();
+        myLocationStyle.strokeColor(Color.BLACK);
+        myLocationStyle.radiusFillColor(Color.argb(100, 0, 0, 180));
+        myLocationStyle.strokeWidth(0.1f);
+        mAMap.setMyLocationStyle(myLocationStyle);
+        mAMap.setMyLocationRotateAngle(180);
+        mAMap.setLocationSource(this);
+        mAMap.getUiSettings().setMyLocationButtonEnabled(true);
+        mAMap.setMyLocationEnabled(true);
+        mAMap.setMyLocationType(AMap.LOCATION_TYPE_LOCATE);
+
+        mDestinationMarker = mAMap.addMarker(
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
+                        .draggable(true)
+                        .position(
+                                new LatLng(
+                                        AppData.getInstance().getDestination().mLatitude,
+                                        AppData.getInstance().getDestination().mLongitude)));
+
+        // TODO init friends' marker.
     }
 
 
@@ -131,6 +194,7 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
     protected void onPause() {
         super.onPause();
         mMapView.onPause();
+        deactivate();
     }
 
     @Override
@@ -145,5 +209,99 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
         IMClient.getsInstance().quitChatRoom();
         super.onDestroy();
         mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLocationChanged(AMapLocation aMapLocation) {
+        if (mListener != null && aMapLocation != null) {
+            mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
+            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
+                    .getLongitude()));
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+
+    @Override
+    public void activate(OnLocationChangedListener listener) {
+        mListener = listener;
+        if (mAMapLocationManager == null) {
+            mAMapLocationManager = LocationManagerProxy.getInstance(this);
+
+            mAMapLocationManager.requestLocationUpdates(
+                    LocationProviderProxy.AMapNetwork, 2000, 10, this);
+        }
+    }
+
+    @Override
+    public void deactivate() {
+        mListener = null;
+        if (mAMapLocationManager != null) {
+            mAMapLocationManager.removeUpdates(this);
+            mAMapLocationManager.destory();
+        }
+        mAMapLocationManager = null;
+    }
+
+    @Override
+    public View getInfoWindow(Marker marker) {
+        return null;
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+        return null;
+    }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+
+    }
+
+    @Override
+    public void onMapLoaded() {
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void onMarkerDragStart(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDrag(Marker marker) {
+
+    }
+
+    @Override
+    public void onMarkerDragEnd(Marker marker) {
+
     }
 }
