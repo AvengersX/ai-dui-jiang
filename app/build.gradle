@@ -37,10 +37,10 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
-    compile files('../libs/AMap_3DMap_V2.4.1.jar')
-    compile files('../libs/AMap_Services_V2.4.0.jar')
-    compile files('../libs/Android_Location_V1.3.2.jar')
-    compile files('../libs/Android_Navi_V1.1.2.jar')
-    compile files('../libs/Msc.jar')
+    compile files('libs/AMap_3DMap_V2.4.1.jar')
+    compile files('libs/AMap_Services_V2.4.0.jar')
+    compile files('libs/Android_Location_V1.3.2.jar')
+    compile files('libs/Android_Navi_V1.1.2.jar')
+    compile files('libs/Msc.jar')
     compile files('libs/Rong_IMLib_v1_4_8.jar')
 }
