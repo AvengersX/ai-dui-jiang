@@ -2,6 +2,7 @@ package com.sogou.aiduijiang;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -20,32 +21,33 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
 
     @Override
     public void onUserJoin(String userId, String avatar, String lat, String lon) {
-
+        Log.v("hccc", "=====onUserJoin====" + userId + " " + avatar + " " + lat + " " + lon);
     }
 
     @Override
     public void onUserLocationUpdate(String userId, String lat, String lon) {
-
+        Log.v("hccc", "===onUserLocationUpdate======" + userId + " " + lat + " " + lon);
     }
 
     @Override
     public void onUserQuit(String userId) {
-
+        Log.v("hccc", "====onUserQuit=====" + userId);
     }
 
     @Override
     public void onUserStartTalk(String userId) {
-
+        Log.v("hccc", "===onUserStartTalk======" + userId);
     }
 
     @Override
     public void onUserEndTalk(String userId) {
 
+        Log.v("hccc", "===onUserEndTalk======" + userId);
     }
 
     @Override
     public void onSetDestination(String userId, String lat, String lon) {
-
+        Log.v("hccc", "======onSetDestination===" + userId + " " + lat + " " + lon);
     }
 
     @Override
@@ -126,6 +128,12 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
     }
 
     @Override
+    protected void onUserLeaveHint() {
+        IMClient.getsInstance().quitChatRoom();
+        super.onUserLeaveHint();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         mMapView.onPause();
@@ -140,7 +148,6 @@ public class MainActivity extends ActionBarActivity implements IMCallBack {
 
     @Override
     protected void onDestroy() {
-        IMClient.getsInstance().quitChatRoom();
         super.onDestroy();
         mMapView.onDestroy();
     }

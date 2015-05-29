@@ -44,3 +44,4 @@ Thumbs.db
 # Android Studio
 *.iml
 .idea
+app/app.iml

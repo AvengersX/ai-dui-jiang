@@ -10,7 +10,6 @@ import com.sogou.aiduijiang.AmrAudioEncoder;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Queue;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.message.TextMessage;
@@ -26,6 +25,13 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
     RongIMClient mRongIMClient;
 
     private String mUserId;
+
+    private IMCallBack mCallBack;
+
+    @Override
+    public String getUID() {
+        return mUserId;
+    }
 
     @Override
     public void init(Context context) {
@@ -110,13 +116,65 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         }).start();
     }
 
+    private String[] parseParams(String s, int num) {
+        if (s == null || s.length() == 0) {
+            return null;
+        }
+        String[] result = s.split("\\|");
+        if (result == null || result.length != num + 1) {
+            return null;
+        }
+        return result;
+    }
+
     @Override
     public void onReceived(final RongIMClient.Message message, int i) {
-//        Log.v("hccc", "=====message received==" + message + message.getClass() + message.getContent());
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
-            Log.d("hccc", "TextMessage---收收收收--接收到一条【文字消息】-----" + textMessage.getContent() + ",getExtra:" + textMessage.getExtra());
-            Log.d("hccc", "TextMessage---收收收收--接收到一条【文字消息】getPushContent-----" + textMessage.getPushContent());
+            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + textMessage.getContent());
+            /**
+             *
+                sendMessage("start_talk|" + mUserId);
+                sendMessage("end_talk|" + mUserId);
+                sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
+                sendMessage("set_destination|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
+                sendMessage("join_chat|" + mUserId);
+                sendMessage("quit_chat|" + mUserId);
+             */
+            String msg = textMessage.getContent();
+            if (msg != null) {
+                if (msg.startsWith("start_talk")) {
+                    String[] params = parseParams(msg, 2);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onUserStartTalk(params[1]);
+                    }
+                } else if (msg.startsWith("end_talk")) {
+                    String[] params = parseParams(msg, 2);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onUserEndTalk(params[1]);
+                    }
+                } else if (msg.startsWith("join_chat")) {
+                    String[] params = parseParams(msg, 2);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onUserJoin(params[1], "","", "");
+                    }
+                } else if (msg.startsWith("quit_chat")) {
+                    String[] params = parseParams(msg, 2);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onUserQuit(params[1]);
+                    }
+                } else if (msg.startsWith("update_location")) {
+                    String[] params = parseParams(msg, 4);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onUserLocationUpdate(params[1], params[2], params[3]);
+                    }
+                } else if (msg.startsWith("set_destination")) {
+                    String[] params = parseParams(msg, 4);
+                    if (params != null && mCallBack != null) {
+                        mCallBack.onSetDestination(params[1], params[2], params[3]);
+                    }
+                }
+            }
 
         } else if (message.getContent() instanceof VoiceMessage) {
             final VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
@@ -131,6 +189,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             @Override
             public void onSuccess() {
                 Log.v("hccc", "=======join chat room success=");
+                sendMessage("join_chat|" + mUserId);
             }
 
             @Override
@@ -145,7 +204,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         mRongIMClient.quitChatRoom(CHAT_ROOM_ID, new RongIMClient.OperationCallback() {
             @Override
             public void onSuccess() {
-
+                sendMessage("quit_chat|" + mUserId);
             }
 
             @Override
@@ -156,10 +215,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
     }
 
     @Override
-    public void sendMessage() {
-        TextMessage textMessage = TextMessage.obtain("这是消息。。。。。。春节快乐！！！！发送时间:" + System.currentTimeMillis());
-        textMessage.setExtra("文字消息Extra");
-        textMessage.setPushContent("push 内容setPushContent");
+    public void sendMessage(String msg) {
+        TextMessage textMessage = TextMessage.obtain(msg  + "|" + System.currentTimeMillis());
+        Log.v("hccc", "===send message==" + msg);
         mRongIMClient.sendMessage(RongIMClient.ConversationType.CHATROOM, CHAT_ROOM_ID, textMessage, new RongIMClient.SendMessageCallback(){
             @Override
             public void onSuccess(int i) {
@@ -169,7 +227,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
             @Override
             public void onError(int i, ErrorCode errorCode) {
-                Log.v("hccc", "=======onError=");
+                Log.v("hccc", "=======onError=" + errorCode.toString());
 
             }
 
@@ -189,7 +247,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
     @Override
     public void startTalk() {
         Log.v("hccc", "====start talk===");
-        sendMessage();
+        sendMessage("start_talk|" + mUserId);
         isTalking = true;
         handleTalk();
     }
@@ -218,6 +276,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                         e.printStackTrace();
                     }
                 }
+                sendMessage("end_talk|" + mUserId);
             }
         };
         new Thread(sendRunnable).start();
@@ -270,5 +329,10 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         isTalking = false;
         AmrAudioEncoder.getArmAudioEncoderInstance().stop();
 
+    }
+
+    @Override
+    public void setCallBack(IMCallBack callBack) {
+        mCallBack = callBack;
     }
 }

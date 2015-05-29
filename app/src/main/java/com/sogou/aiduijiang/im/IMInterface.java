@@ -7,6 +7,8 @@ import android.content.Context;
  */
 public interface IMInterface {
 
+    public String getUID();
+
     public void init(Context context);
 
     public void connect(String token);
@@ -15,12 +17,14 @@ public interface IMInterface {
 
     public void quitChatRoom();
 
-    public void sendMessage();
+    public void sendMessage(String msg);
 
     public boolean canTalk();
 
     public void startTalk();
 
     public void endTalk();
+
+    public void setCallBack(IMCallBack callBack);
 
 }
