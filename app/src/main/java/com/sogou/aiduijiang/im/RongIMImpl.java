@@ -4,15 +4,13 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sogou.aiduijiang.ADJApplication;
-import com.sogou.aiduijiang.RecordUtil;
+import com.sogou.aiduijiang.AmrAudioEncoder;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Queue;
 
 import io.rong.imlib.RongIMClient;
 import io.rong.message.TextMessage;
@@ -57,6 +55,61 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         }
     }
 
+    boolean playing = false;
+
+    ArrayList<Uri> queue = new ArrayList<Uri>();
+
+    private void playUri(final Uri uri, boolean toQueue) {
+
+        Uri toPlay = null;
+        if (playing) {
+            if (toQueue) {
+                queue.add(uri);
+            } else {
+                toPlay = uri;
+            }
+        } else {
+            toPlay = uri;
+        }
+        final Uri handle = toPlay;
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                MediaPlayer mMediaPlayer = new MediaPlayer();
+                mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mp.start();
+                        playing = true;
+                    }
+                });
+
+                mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        playing = false;
+                        if (queue.size() > 0) {
+                            Uri uri = queue.get(0);
+                            queue.remove(0);
+                            playUri(uri, false);
+                        }
+                    }
+                });
+
+                try {
+                    mMediaPlayer.setDataSource(ADJApplication.getInstance(), handle);
+                    mMediaPlayer.prepare();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     @Override
     public void onReceived(final RongIMClient.Message message, int i) {
 //        Log.v("hccc", "=====message received==" + message + message.getClass() + message.getContent());
@@ -68,29 +121,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         } else if (message.getContent() instanceof VoiceMessage) {
             final VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
             Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + voiceMessage.getExtra() + voiceMessage.getUri());
-
-            new Thread(new Runnable() {
-
-                @Override
-                public void run() {
-
-                    MediaPlayer mMediaPlayer = new MediaPlayer();
-                    mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.start();
-                        }
-                    });
-
-                    try {
-                        mMediaPlayer.setDataSource(ADJApplication.getInstance(), voiceMessage.getUri());
-                        mMediaPlayer.prepare();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+            playUri(voiceMessage.getUri(), true);
         }
     }
 
@@ -159,26 +190,48 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
     public void startTalk() {
         Log.v("hccc", "====start talk===");
         sendMessage();
+        isTalking = true;
+        handleTalk();
+    }
 
-        RecordUtil.startRecord();
+    private static final int SEND_WAIT_LENGTH = 750;
+
+    private boolean isTalking = false;
+
+    private void handleTalk() {
+
+        AmrAudioEncoder.getArmAudioEncoderInstance().initArmAudioEncoder(ADJApplication.getInstance());
+        AmrAudioEncoder.getArmAudioEncoderInstance().start();
+
+        Runnable sendRunnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    wait(SEND_WAIT_LENGTH);
+                } catch (Exception e) {
+                }
+                while(AmrAudioEncoder.getArmAudioEncoderInstance().isAudioRecording()) {
+                    try {
+                        File file = AmrAudioEncoder.getArmAudioEncoderInstance().mToSendFiles.take();
+                        sendVoiceMessage(file);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        new Thread(sendRunnable).start();
+
+
 
     }
 
-    @Override
-    public void endTalk() {
-
+    private void sendVoiceMessage(final File file) {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
 
-                Log.v("hccc", "====end talk===");
-                File file = RecordUtil.endRecord();
                 try {
-//            InputStream is = new FileInputStream(file);
-//            String path = DemoContext.getInstance().getResourceDir();
-//            FileUtil.createFile("voice", path);
-//            Uri uri = Uri.parse(path + "/voice");
-//            uri = FileUtil.writeByte(uri, FileUtil.toByteArray(is));
                     Uri uri = Uri.fromFile(file);
                     VoiceMessage voiceMessage = VoiceMessage.obtain(uri, 10 * 5);
                     voiceMessage.setExtra("I'm Bob,test voice");
@@ -209,6 +262,13 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         };
 
         new Thread(runnable).start();
+
+    }
+
+    @Override
+    public void endTalk() {
+        isTalking = false;
+        AmrAudioEncoder.getArmAudioEncoderInstance().stop();
 
     }
 }
