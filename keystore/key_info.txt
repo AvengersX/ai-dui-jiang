@@ -1,0 +1,29 @@
+pwd: android
+
+
+> keytool -list -v -keystore aiduijiang.keystore -alias aiduijiang -storepass android -keypass android
+别名: aiduijiang
+创建日期: 2015-5-29
+条目类型: PrivateKeyEntry
+证书链长度: 1
+证书[1]:
+所有者: CN=aiduijiang
+发布者: CN=aiduijiang
+序列号: 364f8124
+有效期开始日期: Fri May 29 15:41:06 GMT+08:00 2015, 截止日期: Tue May 22 15:41:06 GMT+08:00 2040
+证书指纹:
+         MD5: A9:92:8F:8B:22:BA:35:18:D6:49:16:F8:FF:F1:D0:97
+         SHA1: 37:91:FD:39:AE:2F:C1:80:15:14:2A:B0:4D:86:E7:6F:C6:58:AA:2D
+         SHA256: 1F:64:9F:D3:08:CB:09:30:3F:C6:2F:51:C8:D1:30:87:25:F2:53:DB:6A:D0:9B:FE:8E:EA:90:B7:E1:B3:2A:56
+         签名算法名称: SHA256withRSA
+         版本: 3
+
+扩展:
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 2D 8D 22 BC 2B 8A 07 D5   28 54 74 BB B5 41 2B 70  -.".+...(Tt..A+p
+0010: 32 71 D2 42                                        2q.B
+]
+]
