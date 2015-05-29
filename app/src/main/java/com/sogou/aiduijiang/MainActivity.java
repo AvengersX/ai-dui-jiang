@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -15,6 +16,7 @@ import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.MapView;
 
+import com.sogou.aiduijiang.im.IMCallBack;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
@@ -36,7 +38,8 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         View.OnClickListener,
         AMap.InfoWindowAdapter,
         LocationSource,
-        AMapLocationListener {
+        AMapLocationListener,
+        IMCallBack {
     private MapView mMapView;
     private AMap mAMap;
     private OnLocationChangedListener mListener;
@@ -47,11 +50,43 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
 
     @Override
+    public void onUserJoin(String userId, String avatar, String lat, String lon) {
+        Log.v("hccc", "=====onUserJoin====" + userId + " " + avatar + " " + lat + " " + lon);
+    }
+
+    @Override
+    public void onUserLocationUpdate(String userId, String lat, String lon) {
+        Log.v("hccc", "===onUserLocationUpdate======" + userId + " " + lat + " " + lon);
+    }
+
+    @Override
+    public void onUserQuit(String userId) {
+        Log.v("hccc", "====onUserQuit=====" + userId);
+    }
+
+    @Override
+    public void onUserStartTalk(String userId) {
+        Log.v("hccc", "===onUserStartTalk======" + userId);
+    }
+
+    @Override
+    public void onUserEndTalk(String userId) {
+
+        Log.v("hccc", "===onUserEndTalk======" + userId);
+    }
+
+    @Override
+    public void onSetDestination(String userId, String lat, String lon) {
+        Log.v("hccc", "======onSetDestination===" + userId + " " + lat + " " + lon);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         IMClient.getsInstance().joinChatRoom();
+        IMClient.getsInstance().setIMCallBack(this);
 
         findViewById(R.id.btn).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -156,6 +191,12 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     @Override
+    protected void onUserLeaveHint() {
+        IMClient.getsInstance().quitChatRoom();
+        super.onUserLeaveHint();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         mMapView.onPause();
@@ -171,7 +212,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     protected void onDestroy() {
-        IMClient.getsInstance().quitChatRoom();
         super.onDestroy();
         mMapView.onDestroy();
     }

@@ -79,7 +79,7 @@ public class ADJApplication extends Application {
             return TOKEN_1;
         } else if (imei.equals("357092068912340")) { // Samsung A7
             return TOKEN_2;
-        } else if (imei.equals("1")) {
+        } else if (imei.equals("357747058397626")) {
             return TOKEN_3;
         } else if (imei.equals("2")) {
             return TOKEN_4;
