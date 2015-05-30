@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.SyncStateContract;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -67,6 +66,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Hashtable<String, Marker> mFriendMarkers = new Hashtable<>();
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
+    private LatLng mCurrentPos = new LatLng(0, 0);
 
     Timer tm = new Timer();
     TimerTask task = new TimerTask() {
@@ -563,9 +563,13 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
             Log.d("zzx", "location changed.");
 //            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
 //                    .getLongitude()));
-            IMClient.getsInstance().updateLocation(String.valueOf(aMapLocation.getLatitude()),
-                    String.valueOf(aMapLocation
-                            .getLongitude()));
+            double lat = aMapLocation.getLatitude();
+            double lng = aMapLocation.getLongitude();
+
+            IMClient.getsInstance().updateLocation(String.valueOf(lat),
+                    String.valueOf(lng));
+
+            mCurrentPos = new LatLng(lat, lng);
 
             if (mListener != null) {
                 mListener.onLocationChanged(aMapLocation);
