@@ -296,6 +296,13 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             @Override
             public void onError(int i, ErrorCode errorCode) {
                 Log.v("hccc", "=======onError=" + errorCode.toString());
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ADJApplication.getInstance(), "掉线了", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
             }
 
