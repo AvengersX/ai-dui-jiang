@@ -223,7 +223,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                     uid = params[1];
                 }
             }
-            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
+            if (!uid.equals(mUserId)) {
+                AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
+            }
         }
     }
 
