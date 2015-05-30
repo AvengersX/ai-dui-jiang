@@ -233,6 +233,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
         // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        if (resizedBitmap != bm) {
+            bm.recycle();
+        }
         return resizedBitmap;
     }
 
