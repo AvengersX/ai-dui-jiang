@@ -71,7 +71,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private AMap mAMap;
     private OnLocationChangedListener mListener;
     private LocationManagerProxy mAMapLocationManager;
-//    private Marker mMyMarker;
+    private Marker mMyMarker;
     private Marker mDestinationMarker;
     private Hashtable<String, Marker> mFriendMarkers = new Hashtable<>();
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
@@ -579,10 +579,18 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     private void setupMap() {
+        User curr = AppData.getInstance().getCurrentUser();
+        mMyMarker = mAMap.addMarker(
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .icon(BitmapDescriptorFactory.fromResource(Integer.valueOf(IMClient.getsInstance().getAvatar())))
+                        .position(new LatLng(curr.mLatitude, curr.mLongitude)));
 
         MyLocationStyle myLocationStyle = new MyLocationStyle();
-        myLocationStyle.strokeColor(Color.BLACK);
-        myLocationStyle.radiusFillColor(Color.argb(100, 0, 0, 180));
+        Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        myLocationStyle.myLocationIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+        myLocationStyle.strokeColor(Color.BLUE);
+        myLocationStyle.radiusFillColor(Color.argb(88, 0, 0, 180));
         myLocationStyle.strokeWidth(0.1f);
         mAMap.setMyLocationStyle(myLocationStyle);
         mAMap.setMyLocationRotateAngle(180);
@@ -662,8 +670,8 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (aMapLocation != null) {
             Log.d("zzx", "location changed.");
-//            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
-//                    .getLongitude()));
+            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
+                    .getLongitude()));
             double lat = aMapLocation.getLatitude();
             double lng = aMapLocation.getLongitude();
 
