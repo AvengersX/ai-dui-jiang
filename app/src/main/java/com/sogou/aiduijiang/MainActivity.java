@@ -203,12 +203,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     @Override
-    protected void onUserLeaveHint() {
-        IMClient.getsInstance().quitChatRoom();
-        super.onUserLeaveHint();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         mMapView.onPause();
@@ -224,6 +218,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     protected void onDestroy() {
+        IMClient.getsInstance().quitChatRoom();
         super.onDestroy();
         mMapView.onDestroy();
     }

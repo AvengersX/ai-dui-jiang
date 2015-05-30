@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.sogou.aiduijiang.ADJApplication;
 import com.sogou.aiduijiang.AmrAudioEncoder;
+import com.sogou.aiduijiang.AmrAudioPlayer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -152,6 +153,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                     String[] params = parseParams(msg, 2);
                     if (params != null && mCallBack != null) {
                         mCallBack.onUserEndTalk(params[1]);
+                        AmrAudioPlayer.getInstance().stop();
                     }
                 } else if (msg.startsWith("join_chat")) {
                     String[] params = parseParams(msg, 2);
@@ -178,8 +180,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
         } else if (message.getContent() instanceof VoiceMessage) {
             final VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
-            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + voiceMessage.getExtra() + voiceMessage.getUri());
-            playUri(voiceMessage.getUri(), true);
+//            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + voiceMessage.getExtra() + voiceMessage.getUri());
+//            playUri(voiceMessage.getUri(), true);
+            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri());
         }
     }
 
@@ -201,10 +204,10 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
     @Override
     public void quitChatRoom() {
+        sendMessage("quit_chat|" + mUserId);
         mRongIMClient.quitChatRoom(CHAT_ROOM_ID, new RongIMClient.OperationCallback() {
             @Override
             public void onSuccess() {
-                sendMessage("quit_chat|" + mUserId);
             }
 
             @Override
@@ -275,6 +278,10 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                }
+                try {
+                    wait(SEND_WAIT_LENGTH);
+                } catch (Exception e) {
                 }
                 sendMessage("end_talk|" + mUserId);
             }
