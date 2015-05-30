@@ -1,5 +1,6 @@
 package com.sogou.aiduijiang;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Button;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -38,6 +40,7 @@ import com.amap.api.navi.model.AMapNaviPath;
 import com.amap.api.navi.model.NaviInfo;
 import com.amap.api.navi.model.NaviLatLng;
 import com.amap.api.navi.view.RouteOverLay;
+import com.amap.api.services.core.LatLonPoint;
 import com.sogou.aiduijiang.im.IMCallBack;
 import com.sogou.aiduijiang.im.IMClient;
 import com.sogou.aiduijiang.model.AppData;
@@ -50,7 +53,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClickListener,
+public class MainActivity extends Activity implements AMap.OnMarkerClickListener,
         AMap.OnInfoWindowClickListener,
         AMap.OnMarkerDragListener,
         AMap.OnMapLoadedListener,
@@ -67,6 +70,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private static final int MSG_START_TALK = 4;
     private static final int MSG_END_TALK = 5;
     private static final int MSG_DEST_CHANGE = 6;
+    public static final int MSG_SET_DEST = 7;
     private static final int MSG_TIMER1 = 100;
 
     private MapView mMapView;
@@ -80,7 +84,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private static int sAvatarSize = 0;
     private LatLng mCurrentPos = new LatLng(0, 0);
     private LatLng mDestPos = new LatLng(0, 0);
-
 
     private boolean mIsRouteSuccess = false;
     private AMapNavi mAMapNavi;
@@ -219,10 +222,23 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                             LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
                 }
                     break;
+                case MSG_SET_DEST: {
+                    LatLonPoint point = (LatLonPoint)msg.obj;
+                    SetDestination(point);
+                }
+                break;
             }
             super.handleMessage(msg);
         }
     };
+
+    private void  SetDestination(LatLonPoint DesPos) {
+        double Lat = DesPos.getLatitude();
+        double Long = DesPos.getLongitude();
+        mDestPos = new LatLng(Lat, Long);
+        calculateRoute();
+        IMClient.getsInstance().setDestination(String.valueOf(Lat), String.valueOf(Long));
+    }
 
     private User findUser(String uid) {
         for (User u : AppData.getInstance().getUsers()) {
@@ -533,6 +549,16 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         mMapView = (MapView)findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
 
+        findViewById(R.id.btn_search_des).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,
+                        SearchDesDlgView.class);
+
+                startActivity(intent);
+            }
+        });
+
         init();
 
         tm.schedule(task, 1000, 5000);
@@ -770,7 +796,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 //            mMyMarker.hideInfoWindow();
 //        }
         marker.hideInfoWindow();
-        //来我这
+        //������
         IMClient.getsInstance().setDestination(String.valueOf(mCurrentPos.latitude), String.valueOf(mCurrentPos.longitude));
     }
 
