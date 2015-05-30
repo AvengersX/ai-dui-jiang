@@ -3,7 +3,10 @@ package com.sogou.aiduijiang.im;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.sogou.aiduijiang.ADJApplication;
 import com.sogou.aiduijiang.AmrAudioEncoder;
@@ -130,6 +133,12 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
     @Override
     public void onReceived(final RongIMClient.Message message, int i) {
+
+
+        if (ADJApplication.sSkipMessage) {
+            return;
+        }
+
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
             Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + textMessage.getContent());
@@ -192,12 +201,26 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             @Override
             public void onSuccess() {
                 Log.v("hccc", "=======join chat room success=");
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ADJApplication.getInstance(), "成功加入群聊", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 sendMessage("join_chat|" + mUserId);
             }
 
             @Override
             public void onError(ErrorCode errorCode) {
                 Log.v("hccc", "=======join chat room error=" + errorCode.toString());
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(ADJApplication.getInstance(), "加入群聊失败 请稍后重试", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
