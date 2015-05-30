@@ -68,15 +68,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                     break;
                 case MSG_LOC_UPDATE: {
                     User user = (User)msg.obj;
-                    User u = findUser(user.mUid);
-                    if (u == null) {
-                        addUser(user);
-                    } else {
-                        u.mAvatar = user.mAvatar;
-                        u.mLatitude = user.mLatitude;
-                        u.mLongitude = user.mLongitude;
-                        updateUser(u);
-                    }
+                    addUser(user);
                 }
                     break;
                 case MSG_USER_QUIT: {
@@ -117,10 +109,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private boolean addUser(User user) {
         User u = findUser(user.mUid);
         if (u == null) {
-            if (user.mAvatar == 0) {
-                // set avatar randomly
-            }
-
             AppData.getInstance().getUsers().add(user);
             if (mFriendMarkers.containsKey(user.mUid)) {
                 Marker mk = mFriendMarkers.get(user.mUid);
@@ -186,7 +174,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private boolean updateTalkStatus(String uid, boolean isTalking) {
         Marker mk = mFriendMarkers.get(uid);
         if (mk != null) {
-            //mk.setIcon(); // TODO disable animation
+            if (isTalking) {
+                //mk.setIcon(); // TODO animation
+            } else {
+
+            }
         }
 
         return true;
@@ -228,6 +220,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
         User user = new User();
         user.mUid = userId;
+        user.mAvatar = Integer.valueOf(avatar).intValue();
         user.mLatitude = Double.valueOf(lat).doubleValue();
         user.mLongitude = Double.valueOf(lon).doubleValue();
 
@@ -387,8 +380,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                                         AppData.getInstance().getDestination().mLatitude,
                                         AppData.getInstance().getDestination().mLongitude)));
 
-        // TODO init friends' marker.
-
         // set info windows clicks
         mAMap.setOnMarkerClickListener(this);
         mAMap.setOnInfoWindowClickListener(this);
@@ -448,8 +439,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (mListener != null && aMapLocation != null) {
-            mListener.onLocationChanged(aMapLocation);// ��ʾϵͳС����
+            mListener.onLocationChanged(aMapLocation);
             mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
+                    .getLongitude()));
+            IMClient.getsInstance().updateLocation(String.valueOf(aMapLocation.getLatitude()),
+                    String.valueOf(aMapLocation
                     .getLongitude()));
         }
     }
