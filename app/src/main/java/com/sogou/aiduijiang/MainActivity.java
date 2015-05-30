@@ -85,6 +85,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private boolean mIsRouteSuccess = false;
     private AMapNavi mAMapNavi;
     private RouteOverLay mRouteOverLay;
+    private boolean mPaused = false;
 
     @Override
     public void onInitNaviFailure() {
@@ -215,8 +216,10 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         mAMapLocationManager = LocationManagerProxy.getInstance(MainActivity.this);
                     }
 
-                    mAMapLocationManager.requestLocationData(
-                            LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
+                    if (!mPaused) {
+                        mAMapLocationManager.requestLocationData(
+                                LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
+                    }
                 }
                     break;
             }
@@ -659,6 +662,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     protected void onResume() {
         super.onResume();
 
+        mPaused = false;
         mMapView.onResume();
     }
 
@@ -667,6 +671,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         super.onPause();
         mMapView.onPause();
         deactivate();
+        mPaused = true;
     }
 
     @Override
@@ -770,7 +775,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 //            mMyMarker.hideInfoWindow();
 //        }
         marker.hideInfoWindow();
-        //来我这
+        //来我�?
         IMClient.getsInstance().setDestination(String.valueOf(mCurrentPos.latitude), String.valueOf(mCurrentPos.longitude));
     }
 
