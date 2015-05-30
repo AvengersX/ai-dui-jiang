@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.SyncStateContract;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -62,11 +61,12 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private AMap mAMap;
     private OnLocationChangedListener mListener;
     private LocationManagerProxy mAMapLocationManager;
-    private Marker mMyMarker;
+//    private Marker mMyMarker;
     private Marker mDestinationMarker;
     private Hashtable<String, Marker> mFriendMarkers = new Hashtable<>();
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
+    private LatLng mCurrentPos = new LatLng(0, 0);
 
     Timer tm = new Timer();
     TimerTask task = new TimerTask() {
@@ -473,11 +473,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     private void setupMap() {
         User curr = AppData.getInstance().getCurrentUser();
-        mMyMarker = mAMap.addMarker(
-                new MarkerOptions()
-                        .anchor(0.5f, 0.5f)
-                        .icon(BitmapDescriptorFactory.fromResource(curr.mAvatar))
-                        .position(new LatLng(curr.mLatitude, curr.mLongitude)));
+//        mMyMarker = mAMap.addMarker(
+//                new MarkerOptions()
+//                        .anchor(0.5f, 0.5f)
+//                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.avatar1))
+//                        .position(new LatLng(curr.mLatitude, curr.mLongitude)));
 
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         myLocationStyle.strokeColor(Color.BLACK);
@@ -561,11 +561,15 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (aMapLocation != null) {
             Log.d("zzx", "location changed.");
-            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
-                    .getLongitude()));
-            IMClient.getsInstance().updateLocation(String.valueOf(aMapLocation.getLatitude()),
-                    String.valueOf(aMapLocation
-                            .getLongitude()));
+//            mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
+//                    .getLongitude()));
+            double lat = aMapLocation.getLatitude();
+            double lng = aMapLocation.getLongitude();
+
+            IMClient.getsInstance().updateLocation(String.valueOf(lat),
+                    String.valueOf(lng));
+
+            mCurrentPos = new LatLng(lat, lng);
 
             if (mListener != null) {
                 mListener.onLocationChanged(aMapLocation);
