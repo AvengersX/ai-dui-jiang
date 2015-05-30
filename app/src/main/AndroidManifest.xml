@@ -27,7 +27,7 @@
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="01a1a29223f1b30b7af146d2ac66d3d6" />
+            android:value="6fc58a28e54bbe3c09094dfc878f6744" />
 
         <activity
             android:name=".MainActivity"
