@@ -154,16 +154,16 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             String msg = textMessage.getContent();
             if (msg != null) {
                 if (msg.startsWith("start_talk")) {
-                    String[] params = parseParams(msg, 2);
-                    if (params != null && mCallBack != null) {
-                        mCallBack.onUserStartTalk(params[1]);
-                    }
+//                    String[] params = parseParams(msg, 2);
+//                    if (params != null && mCallBack != null) {
+//                        mCallBack.onUserStartTalk(params[1]);
+//                    }
                 } else if (msg.startsWith("end_talk")) {
-                    String[] params = parseParams(msg, 2);
-                    if (params != null && mCallBack != null) {
-                        mCallBack.onUserEndTalk(params[1]);
-                        AmrAudioPlayer.getInstance().stop();
-                    }
+//                    String[] params = parseParams(msg, 2);
+//                    if (params != null && mCallBack != null) {
+//                        mCallBack.onUserEndTalk(params[1]);
+//                        AmrAudioPlayer.getInstance().stop();
+//                    }
                 } else if (msg.startsWith("join_chat")) {
                     String[] params = parseParams(msg, 2);
                     if (params != null && mCallBack != null) {
@@ -191,7 +191,14 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             final VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
 //            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + voiceMessage.getExtra() + voiceMessage.getUri());
 //            playUri(voiceMessage.getUri(), true);
-            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri());
+            String uid = "";
+            if (voiceMessage.getExtra() != null) {
+                String[] params = parseParams(voiceMessage.getExtra(), 1);
+                if (params != null) {
+                    uid = params[1];
+                }
+            }
+            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
         }
     }
 
@@ -331,7 +338,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 try {
                     Uri uri = Uri.fromFile(file);
                     VoiceMessage voiceMessage = VoiceMessage.obtain(uri, 10 * 5);
-                    voiceMessage.setExtra("I'm Bob,test voice");
+                    voiceMessage.setExtra("voice|" + mUserId);
                     mRongIMClient.sendMessage(RongIMClient.ConversationType.CHATROOM, CHAT_ROOM_ID, voiceMessage, new RongIMClient.SendMessageCallback(){
                         @Override
                         public void onSuccess(int i) {
