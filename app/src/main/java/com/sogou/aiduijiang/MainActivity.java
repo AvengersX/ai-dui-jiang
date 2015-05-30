@@ -70,7 +70,6 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
     private static final int MSG_START_TALK = 4;
     private static final int MSG_END_TALK = 5;
     private static final int MSG_DEST_CHANGE = 6;
-    public static final int MSG_SET_DEST = 7;
     private static final int MSG_TIMER1 = 100;
 
     private MapView mMapView;
@@ -225,23 +224,10 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
                     }
                 }
                     break;
-                case MSG_SET_DEST: {
-                    LatLonPoint point = (LatLonPoint)msg.obj;
-                    SetDestination(point);
-                }
-                break;
             }
             super.handleMessage(msg);
         }
     };
-
-    private void  SetDestination(LatLonPoint DesPos) {
-        double Lat = DesPos.getLatitude();
-        double Long = DesPos.getLongitude();
-        mDestPos = new LatLng(Lat, Long);
-        calculateRoute();
-        IMClient.getsInstance().setDestination(String.valueOf(Lat), String.valueOf(Long));
-    }
 
     private User findUser(String uid) {
         for (User u : AppData.getInstance().getUsers()) {
@@ -558,13 +544,31 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
                 Intent intent = new Intent(MainActivity.this,
                         SearchDesDlgView.class);
 
-                startActivity(intent);
+                startActivityForResult(intent, 0);
             }
         });
 
         init();
 
         tm.schedule(task, 1000, 5000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v("SearchDesDlgView", "MainActivity:onActivityResult requestCode = " + requestCode + "resutltCode = " + resultCode
+        + " data = " + data);
+        if (data == null) {
+            return;
+        }
+        double lat = data.getDoubleExtra(SearchDesDlgView.EXTRA_ANSWER_LATION, 0);
+        double Longti = data.getDoubleExtra(SearchDesDlgView.EXTRA_ANSWER_LONGTION, 0);
+        SetDestination(lat, Longti);
+    }
+
+    private void SetDestination(double Lati, double Longi) {
+        mDestPos = new LatLng(Lati, Longi);
+        calculateRoute();
+        IMClient.getsInstance().setDestination(String.valueOf(Lati), String.valueOf(Longi));
     }
 
     private void init() {

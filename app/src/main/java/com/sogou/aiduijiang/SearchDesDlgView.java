@@ -2,10 +2,11 @@ package com.sogou.aiduijiang;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,7 +25,6 @@ import com.amap.api.services.poisearch.PoiSearch;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.os.Handler;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -33,7 +33,10 @@ import android.widget.Toast;
  */
 public class SearchDesDlgView extends Activity implements TextWatcher,
         PoiSearch.OnPoiSearchListener {
-    private Handler mHandler;
+    public static final String EXTRA_ANSWER_LATION =
+            "com.sogou.aiduijiang.SearchDesDlgView.Lat";
+    public static final String EXTRA_ANSWER_LONGTION =
+            "com.sogou.aiduijiang.SearchDesDlgView.Long";
 
     private AutoCompleteTextView mSearchDesText;
     private Button mSearchBtn;
@@ -42,14 +45,9 @@ public class SearchDesDlgView extends Activity implements TextWatcher,
     private PoiSearch.Query startSearchQuery;
     private ProgressDialog progDialog = null;// 搜索时进度条
     private LatLonPoint startPoint = null;
-    private String startStr;
 
     private RouteSearchAdapter adapter;
     private List<PoiItem> poiItems;
-
-    public void setHandler(Handler handler) {
-        mHandler = handler;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,10 +88,12 @@ public class SearchDesDlgView extends Activity implements TextWatcher,
 
                     @Override
                     public void onGetInputtips(List<Tip> tipList, int rCode) {
-                        if (rCode == 0) {// 正确返回
+                        if (rCode == 0 && tipList != null) {// 正确返回
                             List<String> listString = new ArrayList<String>();
                             for (int i = 0; i < tipList.size(); i++) {
-                                listString.add(tipList.get(i).getName());
+                                if (tipList.get(i) != null) {
+                                    listString.add(tipList.get(i).getName());
+                                }
                             }
                             ArrayAdapter<String> aAdapter = new ArrayAdapter<String>(
                                     getApplicationContext(),
@@ -182,10 +182,8 @@ public class SearchDesDlgView extends Activity implements TextWatcher,
                             PoiItem pos = poiItems.get(position);
                             LatLonPoint startpos = pos.getLatLonPoint();
                             String starttitle = pos.getTitle();
-                            //Message msg = mHandler.obtainMessage();
-                            //msg.what = MainActivity.MSG_SET_DEST;
-                           // msg.obj = new LatLonPoint(startpos.getLatitude(), startpos.getLongitude());
-                            //mHandler.sendMessage(msg);
+                            Log.v("SearchDesDlgView", "LatLonPoint Lati = " + startpos.getLatitude() + " Longi = " + startpos.getLongitude());
+                            setAnswerShownResult(startpos.getLatitude(), startpos.getLongitude());
                             finish();
                         }
                     });
@@ -198,5 +196,12 @@ public class SearchDesDlgView extends Activity implements TextWatcher,
             Toast.makeText(this, "请求错误",Toast.LENGTH_SHORT)
                     .show();
         }
+    }
+
+    private void setAnswerShownResult(double lat, double Lon) {
+        Intent data = new Intent();
+        data.putExtra(EXTRA_ANSWER_LATION, lat);
+        data.putExtra(EXTRA_ANSWER_LONGTION, Lon);
+        setResult(RESULT_OK, data);
     }
 }
