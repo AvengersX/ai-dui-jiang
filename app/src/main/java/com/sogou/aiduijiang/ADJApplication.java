@@ -31,6 +31,8 @@ public class ADJApplication extends Application {
         return sInstance;
     }
 
+    public static boolean sSkipMessage = false;
+
     @Override
     public void onCreate() {
         super.onCreate();

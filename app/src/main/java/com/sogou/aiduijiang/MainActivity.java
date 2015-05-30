@@ -2,6 +2,7 @@ package com.sogou.aiduijiang;
 
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -86,9 +87,16 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ADJApplication.sSkipMessage = true;
         IMClient.getsInstance().joinChatRoom();
         IMClient.getsInstance().setIMCallBack(this);
-
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ADJApplication.sSkipMessage = false;
+            }
+        }, 5000);
         findViewById(R.id.btn).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
