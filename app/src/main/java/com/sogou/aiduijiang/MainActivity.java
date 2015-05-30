@@ -258,6 +258,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
         // "RECREATE" THE NEW BITMAP
         Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        if (resizedBitmap != bm) {
+            bm.recycle();
+        }
         return resizedBitmap;
     }
 
@@ -396,11 +399,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         break;
                 }
 
-                sAvatarSize = (int)getResources().getDisplayMetrics().density * 50;
-
                 return false;
             }
         });
+
+        sAvatarSize = (int)getResources().getDisplayMetrics().density * 50;
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override

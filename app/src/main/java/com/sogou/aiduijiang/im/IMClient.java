@@ -55,6 +55,10 @@ public class IMClient {
         mIMImpl.endTalk();
     }
 
+    public String getAvatar() {
+        return  mIMImpl.getAvatar() + "";
+    }
+
     /**
      * 更新用户经纬度
      * @param lat

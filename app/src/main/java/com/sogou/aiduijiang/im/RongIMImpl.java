@@ -200,7 +200,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 } else if (msg.startsWith("update_location")) {
                     String[] params = parseParams(msg, 5);
                     if (params != null && mCallBack != null) {
-                        mCallBack.onUserLocationUpdate(params[1], params[4], params[2], params[3]);
+                        if (!params[1].equals(mUserId)) {
+                            mCallBack.onUserLocationUpdate(params[1], params[4], params[2], params[3]);
+                        }
                     }
                 } else if (msg.startsWith("set_destination")) {
                     String[] params = parseParams(msg, 4);
@@ -221,7 +223,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                     uid = params[1];
                 }
             }
-            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
+            if (!uid.equals(mUserId)) {
+                AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
+            }
         }
     }
 
