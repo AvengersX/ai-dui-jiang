@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,7 +27,7 @@
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="018b64a4a7d76e4d6a3742128aaa7ac7" />
+            android:value="01a1a29223f1b30b7af146d2ac66d3d6" />
 
         <activity
             android:name=".MainActivity"

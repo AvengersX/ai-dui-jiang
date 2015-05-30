@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.sogou.aiduijiang.ADJApplication;
 import com.sogou.aiduijiang.AmrAudioEncoder;
 import com.sogou.aiduijiang.AmrAudioPlayer;
+import com.sogou.aiduijiang.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
     RongIMClient mRongIMClient;
 
     @Override
-    public String getAvatar() {
+    public int getAvatar() {
         return getUserAvatar();
     }
 
@@ -136,19 +137,19 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         return result;
     }
 
-    private String getUserAvatar() {
+    private int getUserAvatar() {
 
-        String avatar = "";
+        int avatar = 0;
         if (mUserId.equals("user1")) {
-            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/28/79/54_avatar_middle.jpg";
+            avatar = R.drawable.avatar1;
         } else if (mUserId.equals("user2")) {
-            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/20/27/74_avatar_middle.jpg";
+            avatar = R.drawable.avatar2;
         } else if (mUserId.equals("user3")) {
-            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/71/86/37_avatar_middle.jpg";
+            avatar = R.drawable.avatar3;
         } else if (mUserId.equals("user4")) {
-            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/73/85/42_avatar_middle.jpg";
+            avatar = R.drawable.avatar4;
         } else if (mUserId.equals("user5")) {
-            avatar = "http://img1.imgtn.bdimg.com/it/u=3609969289,86492928&fm=23&gp=0.jpg";
+            avatar = R.drawable.avatar5;
         }
         return avatar;
     }

@@ -9,7 +9,7 @@ public interface IMInterface {
 
     public String getUID();
 
-    public String getAvatar();
+    public int getAvatar();
 
     public void init(Context context);
 
