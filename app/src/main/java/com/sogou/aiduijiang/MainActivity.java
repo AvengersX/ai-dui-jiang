@@ -1,10 +1,14 @@
 package com.sogou.aiduijiang;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.SyncStateContract;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +23,7 @@ import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
+import com.amap.api.maps.model.BitmapDescriptor;
 import com.amap.api.maps.model.BitmapDescriptorFactory;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
@@ -29,7 +34,9 @@ import com.sogou.aiduijiang.im.IMClient;
 import com.sogou.aiduijiang.model.AppData;
 import com.sogou.aiduijiang.model.User;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Iterator;
 
 
 public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClickListener,
@@ -55,6 +62,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Marker mMyMarker;
     private Marker mDestinationMarker;
     private Hashtable<String, Marker> mFriendMarkers = new Hashtable<>();
+    private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
+    private static int sAvatarSize = 0;
+
 
     private Handler mHandler = new Handler() {
 
@@ -171,17 +181,59 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         return true;
     }
 
+    private ArrayList<Integer> findAvatarGif(int resid) {
+        for (Iterator it = mAvatars.keySet().iterator(); it.hasNext();) {
+            Integer i = (Integer)it.next();
+            if (i.intValue() == resid) {
+                return mAvatars.get(i);
+            }
+        }
+
+        return null;
+    }
+
     private boolean updateTalkStatus(String uid, boolean isTalking) {
         Marker mk = mFriendMarkers.get(uid);
-        if (mk != null) {
+        User user = findUser(uid);
+        if (mk != null && user != null) {
             if (isTalking) {
-                //mk.setIcon(); // TODO animation
-            } else {
+                ArrayList<BitmapDescriptor> gifList = new ArrayList<>();
+                ArrayList<Integer> avs = findAvatarGif(user.mAvatar);
+                if (avs != null) {
+                    for (Integer i : avs) {
+                        gifList.add(
+                                BitmapDescriptorFactory.fromBitmap(
+                                        getResizedBitmap(
+                                                BitmapFactory.decodeResource(getResources(), i.intValue()),
+                                                sAvatarSize, sAvatarSize)));
+                    }
 
+                    mk.setIcons(gifList);
+                    mk.setPeriod(20);
+                }
+            } else {
+                Bitmap bmp = BitmapFactory.decodeResource(getResources(), user.mAvatar);
+                bmp = getResizedBitmap(bmp, sAvatarSize, sAvatarSize);
+                mk.setIcon(BitmapDescriptorFactory.fromBitmap(bmp));
             }
         }
 
         return true;
+    }
+
+    private Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        int width = bm.getWidth();
+        int height = bm.getHeight();
+        float scaleWidth = ((float) newWidth) / width;
+        float scaleHeight = ((float) newHeight) / height;
+        // CREATE A MATRIX FOR THE MANIPULATION
+        Matrix matrix = new Matrix();
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight);
+
+        // "RECREATE" THE NEW BITMAP
+        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
+        return resizedBitmap;
     }
 
     private boolean updateDest(User user) {
@@ -319,6 +371,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         break;
                 }
 
+                sAvatarSize = (int)getResources().getDisplayMetrics().density * 50;
 
                 return false;
             }
@@ -349,6 +402,43 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
             mAMap = mMapView.getMap();
             setupMap();
         }
+
+        mAvatars.clear();
+
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(Integer.valueOf(R.drawable.avatar1l));
+        list.add(Integer.valueOf(R.drawable.avatar1m));
+        list.add(Integer.valueOf(R.drawable.avatar1h));
+
+        mAvatars.put(Integer.valueOf(R.drawable.avatar1), list);
+
+        list = new ArrayList<>();
+        list.add(Integer.valueOf(R.drawable.avatar2l));
+        list.add(Integer.valueOf(R.drawable.avatar2m));
+        list.add(Integer.valueOf(R.drawable.avatar2h));
+
+        mAvatars.put(Integer.valueOf(R.drawable.avatar2), list);
+
+        list = new ArrayList<>();
+        list.add(Integer.valueOf(R.drawable.avatar3l));
+        list.add(Integer.valueOf(R.drawable.avatar3m));
+        list.add(Integer.valueOf(R.drawable.avatar3h));
+
+        mAvatars.put(Integer.valueOf(R.drawable.avatar3), list);
+
+        list = new ArrayList<>();
+        list.add(Integer.valueOf(R.drawable.avatar4l));
+        list.add(Integer.valueOf(R.drawable.avatar4m));
+        list.add(Integer.valueOf(R.drawable.avatar4h));
+
+        mAvatars.put(Integer.valueOf(R.drawable.avatar4), list);
+
+        list = new ArrayList<>();
+        list.add(Integer.valueOf(R.drawable.avatar5l));
+        list.add(Integer.valueOf(R.drawable.avatar5m));
+        list.add(Integer.valueOf(R.drawable.avatar5h));
+
+        mAvatars.put(Integer.valueOf(R.drawable.avatar5), list);
     }
 
     private void setupMap() {
@@ -375,10 +465,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         .anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.end))
                         .draggable(true)
-                        .position(
-                                new LatLng(
-                                        AppData.getInstance().getDestination().mLatitude,
-                                        AppData.getInstance().getDestination().mLongitude)));
+                        .position(new LatLng(39.90403, 116.407525)));
+//                        .position(
+//                                new LatLng(
+//                                        AppData.getInstance().getDestination().mLatitude,
+//                                        AppData.getInstance().getDestination().mLongitude)));
 
         // set info windows clicks
         mAMap.setOnMarkerClickListener(this);
