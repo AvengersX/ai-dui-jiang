@@ -9,6 +9,8 @@ public interface IMInterface {
 
     public String getUID();
 
+    public String getAvatar();
+
     public void init(Context context);
 
     public void connect(String token);

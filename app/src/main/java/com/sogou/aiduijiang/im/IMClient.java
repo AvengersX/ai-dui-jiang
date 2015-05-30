@@ -62,7 +62,7 @@ public class IMClient {
      */
     public void updateLocation(String lat, String lon) {
         if (mIMImpl.getUID() != null) {
-            sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
+            sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon + "|" + mIMImpl.getAvatar());
         }
     }
 

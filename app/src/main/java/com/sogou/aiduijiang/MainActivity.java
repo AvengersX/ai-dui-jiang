@@ -57,7 +57,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     @Override
-    public void onUserLocationUpdate(String userId, String lat, String lon) {
+    public void onUserLocationUpdate(String userId, String avatar, String lat, String lon) {
         Log.v("hccc", "===onUserLocationUpdate======" + userId + " " + lat + " " + lon);
     }
 
