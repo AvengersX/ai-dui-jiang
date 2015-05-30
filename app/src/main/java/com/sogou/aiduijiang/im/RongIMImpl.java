@@ -215,12 +215,20 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             public void onError(ErrorCode errorCode) {
                 Log.v("hccc", "=======join chat room error=" + errorCode.toString());
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(ADJApplication.getInstance(), "加入群聊失败 请稍后重试", Toast.LENGTH_SHORT).show();
+                        joinChatRoom();
+//                        Toast.makeText(ADJApplication.getInstance(), "成功加入群聊", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }, 1000);
+//                Handler handler = new Handler(Looper.getMainLooper());
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(ADJApplication.getInstance(), "加入群聊失败 请稍后重试", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             }
         });
     }
