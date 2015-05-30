@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -28,6 +29,14 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 import com.amap.api.maps.model.MyLocationStyle;
+import com.amap.api.navi.AMapNavi;
+import com.amap.api.navi.AMapNaviListener;
+import com.amap.api.navi.model.AMapNaviInfo;
+import com.amap.api.navi.model.AMapNaviLocation;
+import com.amap.api.navi.model.AMapNaviPath;
+import com.amap.api.navi.model.NaviInfo;
+import com.amap.api.navi.model.NaviLatLng;
+import com.amap.api.navi.view.RouteOverLay;
 import com.sogou.aiduijiang.im.IMCallBack;
 import com.sogou.aiduijiang.im.IMClient;
 import com.sogou.aiduijiang.model.AppData;
@@ -48,7 +57,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         AMap.InfoWindowAdapter,
         LocationSource,
         AMapLocationListener,
-        IMCallBack {
+        IMCallBack,
+        AMapNaviListener {
+
     private static final int MSG_USER_JOIN = 1;
     private static final int MSG_LOC_UPDATE = 2;
     private static final int MSG_USER_QUIT = 3;
@@ -67,6 +78,88 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
     private LatLng mCurrentPos = new LatLng(0, 0);
+
+
+    private boolean mIsRouteSuccess = false;
+    private AMapNavi mAMapNavi;
+    private RouteOverLay mRouteOverLay;
+
+    @Override
+    public void onInitNaviFailure() {
+    }
+
+    @Override
+    public void onInitNaviSuccess() {
+    }
+
+    @Override
+    public void onStartNavi(int i) {
+    }
+
+    @Override
+    public void onTrafficStatusUpdate() {
+    }
+
+    @Override
+    public void onLocationChange(AMapNaviLocation aMapNaviLocation) {
+    }
+
+    @Override
+    public void onGetNavigationText(int i, String s) {
+    }
+
+    @Override
+    public void onEndEmulatorNavi() {
+    }
+
+    @Override
+    public void onArriveDestination() {
+    }
+
+    @Override
+    public void onCalculateRouteSuccess() {
+        AMapNaviPath naviPath = mAMapNavi.getNaviPath();
+        if (naviPath == null) {
+            return;
+        }
+
+        Bitmap bmp = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        Bitmap bmp2 = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
+        mRouteOverLay.setStartPointBitmap(bmp);
+        mRouteOverLay.setEndPointBitmap(bmp2);
+        mRouteOverLay.setRouteInfo(naviPath);
+        mRouteOverLay.addToMap();
+        mIsRouteSuccess = true;
+    }
+
+    @Override
+    public void onCalculateRouteFailure(int i) {
+        mIsRouteSuccess = false;
+    }
+
+    @Override
+    public void onReCalculateRouteForYaw() {
+    }
+
+    @Override
+    public void onReCalculateRouteForTrafficJam() {
+    }
+
+    @Override
+    public void onArrivedWayPoint(int i) {
+    }
+
+    @Override
+    public void onGpsOpenStatus(boolean b) {
+    }
+
+    @Override
+    public void onNaviInfoUpdated(AMapNaviInfo aMapNaviInfo) {
+    }
+
+    @Override
+    public void onNaviInfoUpdate(NaviInfo naviInfo) {
+    }
 
     Timer tm = new Timer();
     TimerTask task = new TimerTask() {
@@ -273,9 +366,19 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
         mDestinationMarker.setPosition(new LatLng(pos.mLatitude, pos.mLongitude));
 
+        calculateRoute();
+
         return true;
     }
 
+    private boolean calculateRoute() {
+        ArrayList<NaviLatLng> startPoints = new ArrayList<>();
+        startPoints.add(new NaviLatLng(mCurrentPos.latitude, mCurrentPos.longitude));
+        ArrayList<NaviLatLng> endPoints = new ArrayList<>();
+        endPoints.add(new NaviLatLng(mDestinationMarker.getPosition().latitude, mDestinationMarker.getPosition().longitude));
+
+        return mAMapNavi.calculateDriveRoute(startPoints, endPoints, null, AMapNavi.DrivingDefault);
+    }
 
     @Override
     public void onUserJoin(String userId, String avatar, String lat, String lon) {
@@ -433,6 +536,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
             setupMap();
         }
 
+        mAMapNavi = AMapNavi.getInstance(this);
+        mAMapNavi.setAMapNaviListener(this);
+
+        mRouteOverLay = new RouteOverLay(mAMap, null);
+
         mAvatars.clear();
 
         ArrayList<Integer> list = new ArrayList<>();
@@ -475,10 +583,10 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         User curr = AppData.getInstance().getCurrentUser();
 
         MarkerOptions markerOption = new MarkerOptions();
-        markerOption.title("来我这");
+        markerOption.title(" ");
         markerOption.perspective(true);
         markerOption.draggable(true);
-        markerOption.icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_info_bkg));
+        markerOption.icon(BitmapDescriptorFactory.fromResource(R.drawable.come_here));
 
         mMyMarker = mAMap.addMarker(
                 markerOption
@@ -486,7 +594,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         .icon(BitmapDescriptorFactory.fromResource(Integer.valueOf(IMClient.getsInstance().getAvatar())))
                         .position(new LatLng(curr.mLatitude, curr.mLongitude)));
 
-//        mMyMarker.showInfoWindow();
 
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
@@ -582,6 +689,8 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
             mCurrentPos = new LatLng(lat, lng);
 
+            calculateRoute();
+
             if (mListener != null) {
                 mListener.onLocationChanged(aMapLocation);
             }
@@ -635,7 +744,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     public View getInfoContents(Marker marker) {
-        return null;
+        ImageView view = new ImageView(getApplication());
+        view.setImageResource(R.drawable.come_here);
+        return view;
     }
 
     @Override
@@ -651,6 +762,8 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 //            mMyMarker.hideInfoWindow();
 //        }
         marker.hideInfoWindow();
+        //来我这
+        IMClient.getsInstance().setDestination(String.valueOf(mCurrentPos.latitude), String.valueOf(mCurrentPos.longitude));
     }
 
     @Override

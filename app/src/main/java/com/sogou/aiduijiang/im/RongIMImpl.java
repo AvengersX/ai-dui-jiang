@@ -171,7 +171,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 sendMessage("end_talk|" + mUserId);
                 sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon + "|" + mIMImpl.getAvatar());
                 sendMessage("set_destination|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
-             sendMessage("join_chat|" + mUserId + "|" + getUserAvatar());
+                sendMessage("join_chat|" + mUserId + "|" + getUserAvatar());
                 sendMessage("quit_chat|" + mUserId);
              */
             String msg = textMessage.getContent();
@@ -190,7 +190,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 } else if (msg.startsWith("join_chat")) {
                     String[] params = parseParams(msg, 3);
                     if (params != null && mCallBack != null) {
-                        mCallBack.onUserJoin(params[1], params[2], "", "");
+                        if (!params[1].equals(mUserId)) {
+                            mCallBack.onUserJoin(params[1], params[2], "", "");
+                        }
                     }
                 } else if (msg.startsWith("quit_chat")) {
                     String[] params = parseParams(msg, 2);
@@ -207,7 +209,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 } else if (msg.startsWith("set_destination")) {
                     String[] params = parseParams(msg, 4);
                     if (params != null && mCallBack != null) {
-                        mCallBack.onSetDestination(params[1], params[2], params[3]);
+                        if (!params[1].equals(mUserId)) {
+                            mCallBack.onSetDestination(params[1], params[2], params[3]);
+                        }
                     }
                 }
             }
