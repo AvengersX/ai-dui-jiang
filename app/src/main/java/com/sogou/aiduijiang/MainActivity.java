@@ -567,6 +567,7 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
 
     private void SetDestination(double Lati, double Longi) {
         mDestPos = new LatLng(Lati, Longi);
+        mDestinationMarker.setPosition(mDestPos);
         calculateRoute();
         IMClient.getsInstance().setDestination(String.valueOf(Lati), String.valueOf(Longi));
     }
