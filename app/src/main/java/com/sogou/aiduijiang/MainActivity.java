@@ -37,6 +37,8 @@ import com.sogou.aiduijiang.model.User;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClickListener,
@@ -54,6 +56,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private static final int MSG_START_TALK = 4;
     private static final int MSG_END_TALK = 5;
     private static final int MSG_DEST_CHANGE = 6;
+    private static final int MSG_TIMER1 = 100;
 
     private MapView mMapView;
     private AMap mAMap;
@@ -65,6 +68,16 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
 
+    Timer tm = new Timer();
+    TimerTask task = new TimerTask() {
+
+        @Override
+        public void run() {
+            Message msg = mHandler.obtainMessage();
+            msg.what = MSG_TIMER1;
+            mHandler.sendMessage(msg);
+        }
+    };
 
     private Handler mHandler = new Handler() {
 
@@ -99,6 +112,16 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                 case MSG_DEST_CHANGE: {
                     User user = (User)msg.obj;
                     updateDest(user);
+                }
+                    break;
+
+                case MSG_TIMER1: {
+                    if (mAMapLocationManager == null) {
+                        mAMapLocationManager = LocationManagerProxy.getInstance(MainActivity.this);
+                    }
+
+                    mAMapLocationManager.requestLocationData(
+                            LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
                 }
                     break;
             }
@@ -201,10 +224,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                 ArrayList<Integer> avs = findAvatarGif(user.mAvatar);
                 if (avs != null) {
                     for (Integer i : avs) {
+                        Bitmap bmp = BitmapFactory.decodeResource(getResources(), i.intValue());
+                        Log.d("zzx", "205 bmp width: " + String.valueOf(bmp.getWidth()) + " bmp height: " + String.valueOf(bmp.getHeight()));
                         gifList.add(
                                 BitmapDescriptorFactory.fromBitmap(
-                                        getResizedBitmap(
-                                                BitmapFactory.decodeResource(getResources(), i.intValue()),
+                                        getResizedBitmap(bmp,
                                                 sAvatarSize, sAvatarSize)));
                     }
 
@@ -213,6 +237,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                 }
             } else {
                 Bitmap bmp = BitmapFactory.decodeResource(getResources(), user.mAvatar);
+                Log.d("zzx", "217 bmp width: " + String.valueOf(bmp.getWidth()) + " bmp height: " + String.valueOf(bmp.getHeight()));
                 bmp = getResizedBitmap(bmp, sAvatarSize, sAvatarSize);
                 mk.setIcon(BitmapDescriptorFactory.fromBitmap(bmp));
             }
@@ -395,6 +420,8 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         mMapView.onCreate(savedInstanceState);
 
         init();
+
+        tm.schedule(task, 1000, 5000);
     }
 
     private void init() {
@@ -529,13 +556,17 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-        if (mListener != null && aMapLocation != null) {
-            mListener.onLocationChanged(aMapLocation);
+        if (aMapLocation != null) {
+            Log.d("zzx", "location changed.");
             mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
                     .getLongitude()));
             IMClient.getsInstance().updateLocation(String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation
-                    .getLongitude()));
+                            .getLongitude()));
+
+            if (mListener != null) {
+                mListener.onLocationChanged(aMapLocation);
+            }
         }
     }
 
@@ -563,10 +594,10 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         mListener = listener;
         if (mAMapLocationManager == null) {
             mAMapLocationManager = LocationManagerProxy.getInstance(this);
-
-            mAMapLocationManager.requestLocationUpdates(
-                    LocationProviderProxy.AMapNetwork, 2000, 10, this);
         }
+
+        mAMapLocationManager.requestLocationData(
+                LocationProviderProxy.AMapNetwork, -1, 1, this);
     }
 
     @Override
