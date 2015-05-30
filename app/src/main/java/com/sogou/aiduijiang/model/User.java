@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
  */
 public class User {
     public String mUid;
-    public Bitmap mPhoto;
+    public int mAvatar;
     public double mLatitude;
     public double mLongitude;
 }
