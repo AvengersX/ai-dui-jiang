@@ -2,7 +2,13 @@ package com.sogou.aiduijiang;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+
+import com.sogou.aiduijiang.im.IMCallBack;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -16,7 +22,25 @@ public class AmrAudioPlayer {
 
     private static AmrAudioPlayer mPlayer = new AmrAudioPlayer();
 
+    private Handler mHandler;
+
+    private IMCallBack mCallBack;
+
     public AmrAudioPlayer() {
+        mHandler = new Handler(Looper.getMainLooper()) {
+
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 100) {
+                    IMCallBack callBack = (IMCallBack)msg.obj;
+                    Bundle data = msg.getData();
+                    String uid = data.getString("uid");
+                    if (callBack != null) {
+                        callBack.onUserEndTalk(uid);
+                    }
+                }
+            }
+        };
         cacheFile = new File("/sdcard/cache.amr");
     }
 
@@ -36,13 +60,17 @@ public class AmrAudioPlayer {
 
     private int mCurrent = 0;
 
-    public void play() {
+    public void play(String uid, IMCallBack callBack) {
         Log.v("hccc", "===play==");
         if (isPlaying) {
             return;
         }
         isPlaying = true;
-        playFrom(0);
+        if (callBack != null) {
+            callBack.onUserStartTalk(uid);
+        }
+        mHandler.removeMessages(100);
+        playFrom(0, uid, callBack);
 //        new Thread(new Runnable() {
 //
 //            @Override
@@ -62,7 +90,14 @@ public class AmrAudioPlayer {
 
     private MediaPlayer mCurrentP;
 
-    private void playFrom(final int start) {
+    private Runnable stopRunnable = new Runnable() {
+        @Override
+        public void run() {
+
+        }
+    };
+
+    private void playFrom(final int start, final String uid, final IMCallBack callBack) {
         final MediaPlayer mMediaPlayer = new MediaPlayer();
         mCurrentP = mMediaPlayer;
         new Thread(new Runnable() {
@@ -90,11 +125,22 @@ public class AmrAudioPlayer {
                         public void onCompletion(MediaPlayer mp) {
                             Log.v("hccc", "======on compeltion=" + mp.getCurrentPosition() + " " + start);
                             if (mp.getCurrentPosition() != start) {
-                                playFrom(mp.getCurrentPosition());
+                                playFrom(mp.getCurrentPosition(), uid, callBack);
 //                                mp.release();
                             } else {
                                 Log.v("hccc", "======on compeltion play finish=");
                                 synchronized (mPlayer) {
+
+                                    if (callBack != null) {
+                                        Message msg = Message.obtain();
+                                        msg.what = 100;
+                                        msg.obj = callBack;
+                                        Bundle data = new Bundle();
+                                        data.putString("uid", uid);
+                                        msg.setData(data);
+                                        mHandler.sendMessageDelayed(msg, 1000);
+//                                        callBack.onUserEndTalk(uid);
+                                    }
                                     isPlaying = false;
                                     cacheFile.delete();
                                 }
@@ -133,7 +179,7 @@ public class AmrAudioPlayer {
 //        mCurrent = 0;
     }
 
-    public void addData(Uri uri) {
+    public void addData(Uri uri, String uid, IMCallBack callBack) {
         synchronized (mPlayer) {
             try {
                 FileOutputStream fileOS = new FileOutputStream(cacheFile, true);
@@ -148,7 +194,7 @@ public class AmrAudioPlayer {
                     fileOS.write(AMR_HEAD);
 //                isFirstBlock = false;
                 } else {
-                    play();
+                    play(uid, callBack);
                 }
 
                 byte[] sendBuffer = new byte[1024];

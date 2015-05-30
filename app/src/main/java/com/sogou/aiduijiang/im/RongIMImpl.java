@@ -28,6 +28,11 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
     RongIMClient mRongIMClient;
 
+    @Override
+    public String getAvatar() {
+        return getUserAvatar();
+    }
+
     private String mUserId;
 
     private IMCallBack mCallBack;
@@ -131,6 +136,23 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
         return result;
     }
 
+    private String getUserAvatar() {
+
+        String avatar = "";
+        if (mUserId.equals("user1")) {
+            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/28/79/54_avatar_middle.jpg";
+        } else if (mUserId.equals("user2")) {
+            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/20/27/74_avatar_middle.jpg";
+        } else if (mUserId.equals("user3")) {
+            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/71/86/37_avatar_middle.jpg";
+        } else if (mUserId.equals("user4")) {
+            avatar = "http://www.hi-pda.com/forum/uc_server/data/avatar/000/73/85/42_avatar_middle.jpg";
+        } else if (mUserId.equals("user5")) {
+            avatar = "http://img1.imgtn.bdimg.com/it/u=3609969289,86492928&fm=23&gp=0.jpg";
+        }
+        return avatar;
+    }
+
     @Override
     public void onReceived(final RongIMClient.Message message, int i) {
 
@@ -141,33 +163,33 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
         if (message.getContent() instanceof TextMessage) {
             TextMessage textMessage = (TextMessage) message.getContent();
-            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + textMessage.getContent());
+            Log.e("hccc", "--text message received-----" + textMessage.getContent());
             /**
              *
                 sendMessage("start_talk|" + mUserId);
                 sendMessage("end_talk|" + mUserId);
-                sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
+                sendMessage("update_location|" + mIMImpl.getUID() + "|" + lat + "|" + lon + "|" + mIMImpl.getAvatar());
                 sendMessage("set_destination|" + mIMImpl.getUID() + "|" + lat + "|" + lon);
-                sendMessage("join_chat|" + mUserId);
+             sendMessage("join_chat|" + mUserId + "|" + getUserAvatar());
                 sendMessage("quit_chat|" + mUserId);
              */
             String msg = textMessage.getContent();
             if (msg != null) {
                 if (msg.startsWith("start_talk")) {
-                    String[] params = parseParams(msg, 2);
-                    if (params != null && mCallBack != null) {
-                        mCallBack.onUserStartTalk(params[1]);
-                    }
+//                    String[] params = parseParams(msg, 2);
+//                    if (params != null && mCallBack != null) {
+//                        mCallBack.onUserStartTalk(params[1]);
+//                    }
                 } else if (msg.startsWith("end_talk")) {
-                    String[] params = parseParams(msg, 2);
-                    if (params != null && mCallBack != null) {
-                        mCallBack.onUserEndTalk(params[1]);
-                        AmrAudioPlayer.getInstance().stop();
-                    }
+//                    String[] params = parseParams(msg, 2);
+//                    if (params != null && mCallBack != null) {
+//                        mCallBack.onUserEndTalk(params[1]);
+//                        AmrAudioPlayer.getInstance().stop();
+//                    }
                 } else if (msg.startsWith("join_chat")) {
-                    String[] params = parseParams(msg, 2);
+                    String[] params = parseParams(msg, 3);
                     if (params != null && mCallBack != null) {
-                        mCallBack.onUserJoin(params[1], "","", "");
+                        mCallBack.onUserJoin(params[1], params[2], "", "");
                     }
                 } else if (msg.startsWith("quit_chat")) {
                     String[] params = parseParams(msg, 2);
@@ -175,9 +197,9 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                         mCallBack.onUserQuit(params[1]);
                     }
                 } else if (msg.startsWith("update_location")) {
-                    String[] params = parseParams(msg, 4);
+                    String[] params = parseParams(msg, 5);
                     if (params != null && mCallBack != null) {
-                        mCallBack.onUserLocationUpdate(params[1], params[2], params[3]);
+                        mCallBack.onUserLocationUpdate(params[1], params[4], params[2], params[3]);
                     }
                 } else if (msg.startsWith("set_destination")) {
                     String[] params = parseParams(msg, 4);
@@ -191,7 +213,14 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
             final VoiceMessage voiceMessage = (VoiceMessage) message.getContent();
 //            Log.e("hccc", "VoiceMessage--收收收收--接收到一条【语音消息】 voiceMessage.getExtra-----" + voiceMessage.getExtra() + voiceMessage.getUri());
 //            playUri(voiceMessage.getUri(), true);
-            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri());
+            String uid = "";
+            if (voiceMessage.getExtra() != null) {
+                String[] params = parseParams(voiceMessage.getExtra(), 1);
+                if (params != null) {
+                    uid = params[1];
+                }
+            }
+            AmrAudioPlayer.getInstance().addData(voiceMessage.getUri(), uid, mCallBack);
         }
     }
 
@@ -208,19 +237,27 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                         Toast.makeText(ADJApplication.getInstance(), "成功加入群聊", Toast.LENGTH_SHORT).show();
                     }
                 });
-                sendMessage("join_chat|" + mUserId);
+                sendMessage("join_chat|" + mUserId + "|" + getUserAvatar());
             }
 
             @Override
             public void onError(ErrorCode errorCode) {
                 Log.v("hccc", "=======join chat room error=" + errorCode.toString());
                 Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
+                handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(ADJApplication.getInstance(), "加入群聊失败 请稍后重试", Toast.LENGTH_SHORT).show();
+                        joinChatRoom();
+//                        Toast.makeText(ADJApplication.getInstance(), "成功加入群聊", Toast.LENGTH_SHORT).show();
                     }
-                });
+                }, 1000);
+//                Handler handler = new Handler(Looper.getMainLooper());
+//                handler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(ADJApplication.getInstance(), "加入群聊失败 请稍后重试", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
             }
         });
     }
@@ -323,7 +360,7 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
                 try {
                     Uri uri = Uri.fromFile(file);
                     VoiceMessage voiceMessage = VoiceMessage.obtain(uri, 10 * 5);
-                    voiceMessage.setExtra("I'm Bob,test voice");
+                    voiceMessage.setExtra("voice|" + mUserId);
                     mRongIMClient.sendMessage(RongIMClient.ConversationType.CHATROOM, CHAT_ROOM_ID, voiceMessage, new RongIMClient.SendMessageCallback(){
                         @Override
                         public void onSuccess(int i) {

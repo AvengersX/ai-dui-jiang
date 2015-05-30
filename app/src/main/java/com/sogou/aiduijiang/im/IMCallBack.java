@@ -21,7 +21,7 @@ public interface IMCallBack {
      * @param lat
      * @param lon
      */
-    public void onUserLocationUpdate(String userId, String lat, String lon);
+    public void onUserLocationUpdate(String userId, String avatar, String lat, String lon);
 
     /**
      * 用户离开：用户ID
