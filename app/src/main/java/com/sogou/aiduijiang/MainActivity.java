@@ -1,5 +1,6 @@
 package com.sogou.aiduijiang;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -517,7 +518,10 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         findViewById(R.id.btn_together).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //goto team scene
+                Intent gpsIntent = new Intent(MainActivity.this,
+                        NaviActivity.class);
+                gpsIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(gpsIntent);
             }
         });
 
