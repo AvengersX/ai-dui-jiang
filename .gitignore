@@ -6,6 +6,11 @@
 /build
 *.class
 .idea/
+app.iml
+app/app.iml
+app/app.iml1
+app/build
+*.imp*
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -44,8 +49,3 @@ Thumbs.db
 # Android Studio
 *.iml
 .idea
-<<<<<<< Updated upstream
-app/app.iml
-=======
-app/app.iml
->>>>>>> Stashed changes
