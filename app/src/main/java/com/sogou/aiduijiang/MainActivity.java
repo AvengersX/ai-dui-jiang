@@ -14,6 +14,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.LocationManagerProxy;
 import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps.AMap;
+import com.amap.api.maps.LocationSource;
 import com.amap.api.maps.MapView;
 
 import com.sogou.aiduijiang.im.IMCallBack;
@@ -115,6 +116,13 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
             }
         });
 
+        findViewById(R.id.btn_together).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //goto team scene
+            }
+        });
+
         mMapView = (MapView)findViewById(R.id.map);
         mMapView.onCreate(savedInstanceState);
 
@@ -158,8 +166,12 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                                         AppData.getInstance().getDestination().mLongitude)));
 
         // TODO init friends' marker.
-    }
 
+        // set info windows clicks
+        mAMap.setOnMarkerClickListener(this);
+        mAMap.setOnInfoWindowClickListener(this);
+        mAMap.setInfoWindowAdapter(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -219,7 +231,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (mListener != null && aMapLocation != null) {
-            mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
+            mListener.onLocationChanged(aMapLocation);// 锟斤拷示系统小锟斤拷锟斤拷
             mMyMarker.setPosition(new LatLng(aMapLocation.getLatitude(), aMapLocation
                     .getLongitude()));
         }

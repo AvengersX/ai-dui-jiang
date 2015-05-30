@@ -15,9 +15,26 @@
     </com.amap.api.maps.MapView>
 
     <Button
-        android:layout_width="160dp"
+        android:id="@+id/btn_together"
+        android:layout_width="68dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/goto_together"/>
+
+    <Button
         android:id="@+id/btn"
-        android:layout_centerInParent="true"
-        android:layout_height="160dp" />
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/talk_btn_bkg"
+        android:drawableLeft="@drawable/ic_talk_dark"
+        android:drawablePadding="-90dp"
+        android:paddingLeft="100dp"
+        android:text="按住说话"
+        android:textColor="@android:color/black"
+        android:textSize="24dp"/>
 
 </RelativeLayout>

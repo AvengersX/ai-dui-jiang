@@ -44,4 +44,8 @@ Thumbs.db
 # Android Studio
 *.iml
 .idea
+<<<<<<< Updated upstream
 app/app.iml
+=======
+app/app.iml
+>>>>>>> Stashed changes

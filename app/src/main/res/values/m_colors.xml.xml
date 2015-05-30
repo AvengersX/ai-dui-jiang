@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="trans_btn_normal">#90cccccc</color>
+    <color name="trans_btn_press">#90666666</color>
+</resources>
