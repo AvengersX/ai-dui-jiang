@@ -78,6 +78,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
     private LatLng mCurrentPos = new LatLng(0, 0);
+    private LatLng mDestPos = new LatLng(0, 0);
 
 
     private boolean mIsRouteSuccess = false;
@@ -358,6 +359,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     private boolean updateDest(User user) {
+
+        Log.v("hccc", "----------update dest---");
+
         AppData.Pos pos = AppData.getInstance().getDestination();
         pos.mLatitude = user.mLatitude;
         pos.mLongitude = user.mLongitude;
@@ -365,7 +369,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         AppData.getInstance().setDestination(pos);
 
         mDestinationMarker.setPosition(new LatLng(pos.mLatitude, pos.mLongitude));
-
+        mDestPos = new LatLng(pos.mLatitude, pos.mLongitude);
         calculateRoute();
 
         return true;
@@ -375,7 +379,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         ArrayList<NaviLatLng> startPoints = new ArrayList<>();
         startPoints.add(new NaviLatLng(mCurrentPos.latitude, mCurrentPos.longitude));
         ArrayList<NaviLatLng> endPoints = new ArrayList<>();
-        endPoints.add(new NaviLatLng(mDestinationMarker.getPosition().latitude, mDestinationMarker.getPosition().longitude));
+        endPoints.add(new NaviLatLng(mDestPos.latitude, mDestPos.longitude));
 
         return mAMapNavi.calculateDriveRoute(startPoints, endPoints, null, AMapNavi.DrivingDefault);
     }
@@ -618,6 +622,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 //                                        AppData.getInstance().getDestination().mLatitude,
 //                                        AppData.getInstance().getDestination().mLongitude)));
 
+        mDestPos = new LatLng(39.90403, 116.407525);
         // set info windows clicks
         mAMap.setOnMarkerClickListener(this);
         mAMap.setOnInfoWindowClickListener(this);
