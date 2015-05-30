@@ -374,11 +374,11 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
                         break;
                 }
 
-                sAvatarSize = (int)getResources().getDisplayMetrics().density * 50;
-
                 return false;
             }
         });
+
+        sAvatarSize = (int)getResources().getDisplayMetrics().density * 50;
 
         findViewById(R.id.btn).setOnClickListener(new View.OnClickListener() {
             @Override
