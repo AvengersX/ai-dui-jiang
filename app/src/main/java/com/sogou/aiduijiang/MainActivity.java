@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationListener;
@@ -78,6 +79,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     private Hashtable<Integer, ArrayList<Integer>> mAvatars = new Hashtable<>();
     private static int sAvatarSize = 0;
     private LatLng mCurrentPos = new LatLng(0, 0);
+    private LatLng mDestPos = new LatLng(0, 0);
 
 
     private boolean mIsRouteSuccess = false;
@@ -358,6 +360,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
     }
 
     private boolean updateDest(User user) {
+
+        Log.v("hccc", "----------update dest---");
+
         AppData.Pos pos = AppData.getInstance().getDestination();
         pos.mLatitude = user.mLatitude;
         pos.mLongitude = user.mLongitude;
@@ -365,7 +370,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         AppData.getInstance().setDestination(pos);
 
         mDestinationMarker.setPosition(new LatLng(pos.mLatitude, pos.mLongitude));
-
+        mDestPos = new LatLng(pos.mLatitude, pos.mLongitude);
         calculateRoute();
 
         return true;
@@ -375,7 +380,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
         ArrayList<NaviLatLng> startPoints = new ArrayList<>();
         startPoints.add(new NaviLatLng(mCurrentPos.latitude, mCurrentPos.longitude));
         ArrayList<NaviLatLng> endPoints = new ArrayList<>();
-        endPoints.add(new NaviLatLng(mDestinationMarker.getPosition().latitude, mDestinationMarker.getPosition().longitude));
+        endPoints.add(new NaviLatLng(mDestPos.latitude, mDestPos.longitude));
 
         return mAMapNavi.calculateDriveRoute(startPoints, endPoints, null, AMapNavi.DrivingDefault);
     }
@@ -584,11 +589,18 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     private void setupMap() {
         User curr = AppData.getInstance().getCurrentUser();
+        MarkerOptions markerOption = new MarkerOptions();
+        markerOption.title(" ");
+        markerOption.perspective(true);
+        markerOption.draggable(true);
+        markerOption.icon(BitmapDescriptorFactory.fromResource(R.drawable.come_here));
+
         mMyMarker = mAMap.addMarker(
-                new MarkerOptions()
+                markerOption
                         .anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(Integer.valueOf(IMClient.getsInstance().getAvatar())))
                         .position(new LatLng(curr.mLatitude, curr.mLongitude)));
+
 
         MyLocationStyle myLocationStyle = new MyLocationStyle();
         Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
@@ -614,6 +626,7 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 //                                        AppData.getInstance().getDestination().mLatitude,
 //                                        AppData.getInstance().getDestination().mLongitude)));
 
+        mDestPos = new LatLng(39.90403, 116.407525);
         // set info windows clicks
         mAMap.setOnMarkerClickListener(this);
         mAMap.setOnInfoWindowClickListener(this);
@@ -739,7 +752,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     public View getInfoContents(Marker marker) {
-        return null;
+        ImageView view = new ImageView(getApplication());
+        view.setImageResource(R.drawable.come_here);
+        return view;
     }
 
     @Override
@@ -749,7 +764,14 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-
+//        Log.v("hccc", "====on info window click==" + marker  + " " + mMyMarker);
+//        if (marker == mMyMarker) {
+//            Log.v("hccc", "====on info window click=2222=");
+//            mMyMarker.hideInfoWindow();
+//        }
+        marker.hideInfoWindow();
+        //来我这
+        IMClient.getsInstance().setDestination(String.valueOf(mCurrentPos.latitude), String.valueOf(mCurrentPos.longitude));
     }
 
     @Override
@@ -759,6 +781,9 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        if (marker == mMyMarker) {
+            mMyMarker.showInfoWindow();
+        }
         return false;
     }
 

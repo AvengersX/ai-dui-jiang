@@ -15,7 +15,7 @@ import com.sogou.aiduijiang.im.IMClient;
 public class ADJApplication extends Application {
 
 
-    private static final String TOKEN_1 = "fZ11b/Q/ijr5Xcd32/+SbbdcZzg7k0226AkqN9VvhS6OPh7oEsnljDylVoC+yvTo5vXNpw4ECs3BP3OHkLpw4A=="; // user1 caohe
+    private static final String TOKEN_1 = "SaADLQ5NuvLzeiWug2qeSbdcZzg7k0226AkqN9VvhS6OPh7oEsnljLFfbotJfHliF9RXSVP5C8HBP3OHkLpw4A=="; // user1 caohe
 
     private static final String TOKEN_2 = "5D77iRqOnr3xiAhIv8ibBvnxWCq7ejYkOz13Zbm9mtGvo6N70qMuGuqpUlOLEnHoyudweaU66MH7NDwxqlPY8Q=="; // user2 zhenxing
 
