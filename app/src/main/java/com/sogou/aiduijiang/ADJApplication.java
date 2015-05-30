@@ -83,7 +83,7 @@ public class ADJApplication extends Application {
             return TOKEN_2;
         } else if (imei.equals("357747058397626")) {
             return TOKEN_3;
-        } else if (imei.equals("2")) {
+        } else if (imei.equals("860486020306163")) {
             return TOKEN_4;
         } else if (imei.equals("357194042133207")) {
             return TOKEN_5;
