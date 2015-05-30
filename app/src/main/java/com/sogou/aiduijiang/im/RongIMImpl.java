@@ -139,6 +139,10 @@ public class RongIMImpl implements IMInterface, RongIMClient.OnReceiveMessageLis
 
     private int getUserAvatar() {
 
+        if (mUserId == null) {
+            return R.drawable.avatar1;
+        }
+
         int avatar = 0;
         if (mUserId.equals("user1")) {
             avatar = R.drawable.avatar1;
