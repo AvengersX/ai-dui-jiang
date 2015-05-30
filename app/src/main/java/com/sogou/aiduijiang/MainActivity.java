@@ -88,6 +88,7 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
     private boolean mIsRouteSuccess = false;
     private AMapNavi mAMapNavi;
     private RouteOverLay mRouteOverLay;
+    private boolean mPaused = false;
 
     @Override
     public void onInitNaviFailure() {
@@ -218,8 +219,10 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
                         mAMapLocationManager = LocationManagerProxy.getInstance(MainActivity.this);
                     }
 
-                    mAMapLocationManager.requestLocationData(
-                            LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
+                    if (!mPaused) {
+                        mAMapLocationManager.requestLocationData(
+                                LocationProviderProxy.AMapNetwork, -1, 1, MainActivity.this);
+                    }
                 }
                     break;
                 case MSG_SET_DEST: {
@@ -685,6 +688,7 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
     protected void onResume() {
         super.onResume();
 
+        mPaused = false;
         mMapView.onResume();
     }
 
@@ -693,6 +697,7 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
         super.onPause();
         mMapView.onPause();
         deactivate();
+        mPaused = true;
     }
 
     @Override
@@ -796,7 +801,6 @@ public class MainActivity extends Activity implements AMap.OnMarkerClickListener
 //            mMyMarker.hideInfoWindow();
 //        }
         marker.hideInfoWindow();
-        //������
         IMClient.getsInstance().setDestination(String.valueOf(mCurrentPos.latitude), String.valueOf(mCurrentPos.longitude));
     }
 
