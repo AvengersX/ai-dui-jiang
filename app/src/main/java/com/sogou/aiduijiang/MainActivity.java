@@ -581,7 +581,6 @@ public class MainActivity extends ActionBarActivity implements AMap.OnMarkerClic
 
     private void setupMap() {
         User curr = AppData.getInstance().getCurrentUser();
-
         MarkerOptions markerOption = new MarkerOptions();
         markerOption.title(" ");
         markerOption.perspective(true);
